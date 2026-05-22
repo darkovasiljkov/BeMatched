@@ -2,3 +2,82 @@
 
 @import 'tailwindcss';
 @plugin "daisyui";
+
+
+.nav-link {
+  @apply relative rounded-2xl px-5 py-2 text-[15px] font-medium text-white/80 transition-all duration-300;
+}
+
+.nav-link:hover {
+  @apply bg-white/10 text-white;
+  transform: translateY(-1px);
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute left-1/2 bottom-1 h-[2px] w-0 rounded-full bg-white transition-all duration-300;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+  @apply w-8;
+}
+
+.nav-active {
+  @apply bg-white text-black shadow-lg;
+}
+
+.input-modern {
+  @apply h-11 rounded-2xl border border-white/10 bg-white/10 px-4 text-white placeholder:text-white/40 outline-none backdrop-blur-md transition-all duration-300;
+}
+
+.input-modern:focus {
+  @apply border-white/30 bg-white/15;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.05);
+}
+
+.btn-modern {
+  @apply rounded-2xl bg-white px-5 py-2 font-semibold text-black transition-all duration-300;
+}
+
+.btn-modern:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(255,255,255,0.15);
+}
+
+.btn-glass {
+  @apply inline-flex items-center justify-center
+  rounded-2xl
+  border border-white/10
+  bg-white/10
+  px-5 py-2.5
+  font-semibold
+  text-white
+  backdrop-blur-xl
+  transition-all duration-300
+  active:scale-95;
+}
+
+.btn-glass:hover {
+  @apply bg-white/20 border-white/20;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.08);
+}
+
+.alert-success {
+  @apply border-emerald-400;
+}
+
+.alert-error {
+  @apply border-red-400;
+}
+
+.alert-warning {
+  @apply border-yellow-300;
+}
+
+.alert-info {
+  @apply border-blue-400;
+}
+
+

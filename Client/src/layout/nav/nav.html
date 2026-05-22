@@ -1,50 +1,133 @@
-<header class="p-3 w-full fixed top-0 z-50 bg-gradient-to-r from-primary to-black">
-    <div class="flex align-middle items-center px-10 mx-auto gap-6">
-        <a class="flex items-center max-h-16 text-white border-r-white border-r-2 pr-6 gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-9">
-            <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.984L7.28 21.53A.75.75 0 0 1 6 21v-4.03a48.527 48.527 0 0 1-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979Z" />
-            <path d="M15.75 7.5c-1.376 0-2.739.057-4.086.169C10.124 7.797 9 9.103 9 10.609v4.285c0 1.507 1.128 2.814 2.67 2.94 1.243.102 2.5.157 3.768.165l2.782 2.781a.75.75 0 0 0 1.28-.53v-2.39l.33-.026c1.542-.125 2.67-1.433 2.67-2.94v-4.286c0-1.505-1.125-2.811-2.664-2.94A49.392 49.392 0 0 0 15.75 7.5Z" />
-            </svg>
+<header
+  class="fixed top-0 left-0 right-0 z-50 px-6 py-3">
+  
+  <div
+    class="mx-auto flex max-w-7xl items-center gap-6 rounded-3xl border border-white/10 bg-black/40 px-8 py-3 backdrop-blur-xl shadow-2xl">
 
-            <h3 class="text-2xl font-semibold text-white uppercase">BeMatched</h3>
-        </a>
-        <nav class="flex gap-3 my-2 uppercase text-lg text-white">
-            <a>Matches</a>
-            <a>Lists</a>
-            <a>Messages</a>
-        </nav>
-        <div class="flex align-middle ml-auto gap-3">
-            @if (accountService.currentUser(); as user)
-            {
-            <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="flex items-center text-white text-xl gap-3 cursor-pointer">
-                    <img src="/user.png" alt="user avatar" class="w-8 h-8 rounded-full">
-                    <span>{{user.displayName}}</span>
-                </div>
-                <ul tabindex="-1" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-                    <li><a>Edit profile</a></li>
-                    <li><a (click)="logout()">Logout</a></li>
-                </ul>
-            </div>
-            }
-            @else
-            {
-            <form #loginForm="ngForm" (ngSubmit)="login()" class="flex items-center gap-3">
-                <input
-                    [(ngModel)]="creds.email"
-                    name="email"
-                    type="text" 
-                    class="input" 
-                    placeholder="Email">
-                <input 
-                    [(ngModel)]="creds.password"
-                    name="password"
-                    type="password" 
-                    class="input" 
-                    placeholder="Password">
-                <button type="submit" class="btn">Login</button>
-            </form>
-            }
+    <a
+      routerLink="/"
+      class="group flex items-center gap-3 pr-6 transition-all duration-300 hover:scale-[1.03]">
+
+      <div
+        class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 transition-all duration-300 group-hover:bg-white/20 group-hover:shadow-lg group-hover:shadow-white/10">
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="size-7 text-white transition-transform duration-300 group-hover:rotate-6">
+          <path
+            d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.984L7.28 21.53A.75.75 0 0 1 6 21v-4.03a48.527 48.527 0 0 1-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979Z" />
+          <path
+            d="M15.75 7.5c-1.376 0-2.739.057-4.086.169C10.124 7.797 9 9.103 9 10.609v4.285c0 1.507 1.128 2.814 2.67 2.94 1.243.102 2.5.157 3.768.165l2.782 2.781a.75.75 0 0 0 1.28-.53v-2.39l.33-.026c1.542-.125 2.67-1.433 2.67-2.94v-4.286c0-1.505-1.125-2.811-2.664-2.94A49.392 49.392 0 0 0 15.75 7.5Z" />
+        </svg>
+      </div>
+
+      <h3
+        class="text-2xl font-black tracking-tight text-white">
+        BeMatched.
+      </h3>
+    </a>
+
+    <nav class="flex items-center gap-4">
+      @if (accountService.currentUser())
+      {
+      <a
+        routerLink="/members"
+        routerLinkActive="nav-active"
+        class="nav-link">
+        Matches
+      </a>
+
+      <a
+        routerLink="/lists"
+        routerLinkActive="nav-active"
+        class="nav-link">
+        Lists
+      </a>
+
+      <a
+        routerLink="/messages"
+        routerLinkActive="nav-active"
+        class="nav-link">
+        Messages
+      </a>
+      }
+
+    </nav>
+
+    <div class="ml-auto flex items-center gap-3">
+
+      @if (accountService.currentUser(); as user)
+      {
+      <div class="dropdown dropdown-end">
+
+        <div
+          tabindex="0"
+          role="button"
+          class="group flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-300 hover:bg-white/10">
+
+          <img
+            src="/user.png"
+            alt="user avatar"
+            class="h-9 w-9 rounded-full border border-white/20">
+
+          <span class="text-lg font-medium text-white">
+            {{user.displayName}}
+          </span>
         </div>
+
+        <ul
+          tabindex="-1"
+          class="dropdown-content menu z-10 mt-3 w-56 rounded-2xl border border-white/10 bg-zinc-900/95 p-2 text-white shadow-2xl backdrop-blur-xl">
+
+          <li>
+            <a class="rounded-xl hover:bg-white/10">
+              Edit profile
+            </a>
+          </li>
+
+          <li>
+            <a
+              (click)="logout()"
+              class="rounded-xl hover:bg-red-500/20">
+              Logout
+            </a>
+          </li>
+        </ul>
+
+      </div>
+      }
+      @else
+      {
+      <form
+        #loginForm="ngForm"
+        (ngSubmit)="login()"
+        class="flex items-center gap-3">
+
+        <input
+          [(ngModel)]="creds.email"
+          name="email"
+          type="text"
+          placeholder="Email"
+          class="input-modern" />
+
+        <input
+          [(ngModel)]="creds.password"
+          name="password"
+          type="password"
+          placeholder="Password"
+          class="input-modern" />
+
+        <button
+          type="submit"
+          class="btn-modern cursor-pointer">
+          Login
+        </button>
+
+      </form>
+      }
+
     </div>
+  </div>
 </header>
