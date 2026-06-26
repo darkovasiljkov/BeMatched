@@ -75,9 +75,9 @@
           class="group flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-300 hover:bg-white/10">
 
           <img
-            src="/user.png"
+            [src]="user?.imageUrl || '/user.png'"
             alt="user avatar"
-            class="h-9 w-9 rounded-full border border-white/20">
+            class="h-10 w-10 rounded-full border border-white/20">
 
           <span class="text-lg font-medium text-white">
             {{user.displayName}}
