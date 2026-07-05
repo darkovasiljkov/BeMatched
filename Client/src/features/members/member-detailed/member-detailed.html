@@ -1,4 +1,4 @@
-@if (member$ | async; as member) {
+@if (member(); as member) {
     <div class="flex gap-6">
         <div class="card bg-base-100 flex flex-col h-[85v] w-1/4">
             <img src="{{member.imageUrl || '/user.png'}}" alt="iamge of member"
@@ -6,7 +6,7 @@
             <div class="card-body">
                 <div class="flex flex-col items-center">
                     <div class="flex font-semibold text-2xl text-white">
-                        {{member.displayName}}, 25
+                        {{member.displayName}}, {{member.dateOfBirth | age}}
                     </div>
 
                     <div class="text-sm">
@@ -19,18 +19,26 @@
                     <li><a routerLink="photos" routerLinkActive="text-primary">Photos</a>
                     <li><a routerLink="messages" routerLinkActive="text-primary">Messages</a>
                 </ul>
-            </div>
-            <div class="card-actions justify-between gap-2 px-2 mb-3">
+                <div class="card-actions justify-between gap-2 px-2 mb-3">
                 <button class="btn btn-modern flex-1">Go back</button>
-                <button class="btn btn-glass flex-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                <button class=" flex-1 btn btn-like hover:bg-red-600/90"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
                      Like
                 </button>
             </div>
+            </div>
         </div>
 
         <div class="card bg-base-100 w-3/4 p-6">
-            <h3 class="card-title text-4xl text-shadow-white">{{title()}}</h3>
+            <div class="flex justify-between items-center">
+                <h3 class="card-title text-4xl text-shadow-white">{{title()}}</h3>
+                @if (isCurrentUser()) {
+                    <button
+                        (click)="memberService.editMode.set(!memberService.editMode())"
+                         class="btn btn-outline btn-glass">
+                         {{memberService.editMode() ? 'Cancel' : 'Edit' }}</button>
+                }
+            </div>
             <div class="divider"></div>
             <div>
                 <router-outlet></router-outlet>

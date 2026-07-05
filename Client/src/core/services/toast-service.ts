@@ -38,7 +38,7 @@ export class ToastService {
   rounded-3xl
   border border-white/10
   bg-zinc-900/80
-  text-white
+  text-base-content
   backdrop-blur-2xl
   shadow-2xl
   px-5 py-4

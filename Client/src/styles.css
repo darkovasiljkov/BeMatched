@@ -1,7 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: all;
+}
 
 
 .nav-link {
@@ -56,6 +58,25 @@
   backdrop-blur-xl
   transition-all duration-300
   active:scale-95;
+}
+
+.btn-like {
+  @apply inline-flex items-center justify-center
+  rounded-2xl
+  border border-white/10
+  bg-white/10
+  px-5 py-2.5
+  font-semibold
+  text-white
+  backdrop-blur-xl
+  transition-all duration-300
+  active:scale-95;
+}
+
+.btn-like:hover {
+  @apply bg-red-600/20 border-red-500/20;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.08);
 }
 
 .btn-glass:hover {
