@@ -12,6 +12,8 @@ public interface IMemberRepository
 
     Task<Member?> GetMemberByIdAsync(string id);
 
+    Task<Member?> GetMemberWithUserByIdAsync(string id);
+
     Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId);
 
 

@@ -1,4 +1,4 @@
-@if (member(); as member){
+@if (memberService.member(); as member){
     <div class="flex flex-col gap-3">
         <div class="flex">
             <span class="font-semibold">Member since: <span class="font-light">{{member.createdOn | date: 'longDate'}}</span></span>
@@ -18,7 +18,12 @@
               <label class="floating-label"> <span>Description</span> <textarea class="textarea w-full resize-y" name="description" [(ngModel)]="editableMember.description" placeholder="Description"> </textarea> </label> 
               <label class="floating-label"> <span>City</span> <input class="input w-full" name="city" [(ngModel)]="editableMember.city" placeholder="City"> </label> 
               <label class="floating-label"> <span>Country</span> <input class="input w-full" name="country" [(ngModel)]="editableMember.country" placeholder="Country"> </label> 
-              <div class="flex self-end"> <button type="submit" class="btn btn-success">Submit</button> </div>
+              <div class="flex self-end">
+                <button 
+                    [disabled]="!editForm.dirty"
+                    type="submit"
+                    class="btn btn-success">Submit</button>
+              </div>
             </form>
         } @else {
             <div>{{member.description}}</div>
