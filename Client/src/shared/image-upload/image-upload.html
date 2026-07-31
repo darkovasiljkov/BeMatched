@@ -1,0 +1,61 @@
+<div class="w-full rounded-[32px] border border-white/10 bg-zinc-950/80 p-5 shadow-[0_20px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+  <div class="flex flex-col gap-6 xl:flex-row">
+    <div class="flex-1">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-white">Profile photo</h3>
+        <p class="text-sm text-white/60">A polished image gives your profile a sharper first impression.</p>
+      </div>
+
+      <button
+        type="button"
+        class="group flex h-[320px] w-full flex-col items-center justify-center rounded-[24px] border border-dashed px-6 py-8 text-center transition-all duration-300"
+        [class.border-white/25]="!isDragging"
+        [class.bg-white/10]="!isDragging"
+        [class.border-white/40]="isDragging"
+        [class.bg-white/15]="isDragging"
+        [class.shadow-[0_0_0_1px_rgba(255,255,255,0.08)] ]="isDragging"
+        (click)="triggerFilePicker()"
+      >
+        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-black/40 text-xl text-white">
+          ⬆
+        </div>
+        <p class="mb-2 text-lg font-semibold text-white">Click to browse or drop a photo here</p>
+        <p class="max-w-md text-sm text-white/70">{{ statusMessage }}</p>
+        <span class="mt-4 text-xs uppercase tracking-[0.2em] text-white/40">PNG, JPG, WEBP • up to 5MB</span>
+      </button>
+
+      <input
+        id="image-upload-input"
+        type="file"
+        class="hidden"
+        accept="image/*"
+        (change)="onFileInputChange($event)"
+      />
+    </div>
+
+    <div class="flex w-full flex-col gap-4 xl:w-[320px]">
+      <div class="overflow-hidden rounded-[24px] border border-white/10 bg-black/40 p-3">
+        <img
+          [src]="previewImage"
+          [alt]="selectedFileName || 'Image preview'"
+          class="aspect-square w-full rounded-[18px] object-cover"
+        />
+      </div>
+
+      <div class="flex flex-col gap-3">
+        @if (selectedFile) {
+          <p class="text-sm font-medium text-white/80">{{ selectedFileName }}</p>
+        } @else {
+          <p class="text-sm text-white/50">No image selected yet.</p>
+        }
+
+        <div class="flex gap-3">
+          <button type="button" class="btn-modern flex-1" [disabled]="loading" (click)="resetSelection()">Cancel</button>
+          <button type="button" class="btn-glass flex-1" [disabled]="loading" (click)="uploadImage()">
+            {{ loading ? 'Uploading...' : 'Upload image' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
