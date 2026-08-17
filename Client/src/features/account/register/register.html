@@ -1,17 +1,18 @@
 <div class="card bg-base-100 w-1/2 mx-auto flex flex-col p-6 rounded-lg shadow-lg">
     <div class="card-title justify-center text-3xl text-white">Sign up</div>
     <div class="card-body w-full">
-        <form #registerForm="ngForm" class="flex flex-col gap-4 w-full" (ngSubmit)="register()">
-            <input class="input w-full" name="displayName"
-                 [(ngModel)]="creds.displayName" placeholder="Your display name here...">
-            <input class="input w-full" name="email" 
-                [(ngModel)]="creds.email" placeholder="your-name@example.com">
-            <input type="password" class="input w-full" name="password" 
-                [(ngModel)]="creds.password" placeholder="Your password here...">
+        <form [formGroup]="registerForm" class="flex flex-col gap-4 w-full" (ngSubmit)="register()">
+
+            <app-text-input label="Email" formControlname="email"></app-text-input>
+            <app-text-input label="Display name" formControlname="displayName"></app-text-input>
+            <app-text-input label="Password" formControlname="password" type="password"></app-text-input>
+            <app-text-input label="Confirm Password" formControlname="confirmPassword" type="password"></app-text-input>
 
             <div class="flex items-center justify-end gap-3">
                 <button (click)="cancel()" type="button" class="btn-modern">Cancel</button>
-                <button class="btn btn-modern" type="submit">Register</button>
+                <button 
+                    [disabled]="registerForm.valid"
+                    class="btn btn-modern" type="submit">Register</button>
             </div>
         </form>
     </div>
