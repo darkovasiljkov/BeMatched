@@ -3,6 +3,7 @@
     <input 
     class="input w-full"
     [type]="type()"
+    [max]="maxDate()"
     [class.input-error]="control.invalid && control.touched"
     [class.input-success]="control.valid && control.touched"
     [formControl]="control"

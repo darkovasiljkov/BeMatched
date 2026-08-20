@@ -1,19 +1,54 @@
-<div class="card bg-base-100 w-1/2 mx-auto flex flex-col p-6 rounded-lg shadow-lg">
-    <div class="card-title justify-center text-3xl text-white">Sign up</div>
-    <div class="card-body w-full">
-        <form [formGroup]="registerForm" class="flex flex-col gap-4 w-full" (ngSubmit)="register()">
-
-            <app-text-input label="Email" formControlname="email"></app-text-input>
-            <app-text-input label="Display name" formControlname="displayName"></app-text-input>
-            <app-text-input label="Password" formControlname="password" type="password"></app-text-input>
-            <app-text-input label="Confirm Password" formControlname="confirmPassword" type="password"></app-text-input>
-
-            <div class="flex items-center justify-end gap-3">
-                <button (click)="cancel()" type="button" class="btn-modern">Cancel</button>
-                <button 
-                    [disabled]="registerForm.valid"
-                    class="btn btn-modern" type="submit">Register</button>
-            </div>
-        </form>
+<section class="register-shell">
+  <div class="register-card">
+    <div class="register-heading">
+      <p class="register-eyebrow">BeMatched</p>
+      <h1>Create your account</h1>
+      <p>Start with the basics. You can make your profile your own afterwards.</p>
     </div>
-</div>
+
+    <div class="register-progress" aria-label="Registration progress">
+      <span [class.is-active]="currentStep() === 1" [class.is-complete]="currentStep() === 2">1</span>
+      <i></i>
+      <span [class.is-active]="currentStep() === 2">2</span>
+    </div>
+    <p class="register-step-label">{{ currentStep() === 1 ? 'Your account' : 'A little about you' }}</p>
+
+    @if (currentStep() === 1) {
+      <form [formGroup]="credentialsForm" class="register-form" (ngSubmit)="nextStep()" novalidate>
+        <app-text-input label="Email" formControlName="email" type="email"></app-text-input>
+        <app-text-input label="Display name" formControlName="displayName"></app-text-input>
+        <app-text-input label="Password" formControlName="password" type="password"></app-text-input>
+        <app-text-input label="Confirm password" formControlName="confirmPassword" type="password"></app-text-input>
+
+        <div class="register-actions">
+          <button (click)="cancel()" type="button" class="register-link">Cancel</button>
+          <button class="btn-modern register-primary" type="submit">Continue</button>
+        </div>
+      </form>
+    } @else {
+      <form [formGroup]="profileForm" class="register-form" (ngSubmit)="register()" novalidate>
+        <fieldset class="gender-field">
+          <legend>I'm here as</legend>
+          <div class="gender-options">
+            <label><input type="radio" formControlName="gender" value="male"><span>Male</span></label>
+            <label><input type="radio" formControlName="gender" value="female"><span>Female</span></label>
+          </div>
+        </fieldset>
+        <app-text-input [maxDate]="getMaxDate()" type="date" label="Date of birth" formControlName="dateOfBirth"></app-text-input>
+        <app-text-input label="City" formControlName="city"></app-text-input>
+        <app-text-input label="Country" formControlName="country"></app-text-input>
+
+        <div class="register-actions">
+          <button (click)="prevStep()" type="button" class="register-link">Back</button>
+          <button class="btn-modern register-primary" type="submit">Create account</button>
+        </div>
+      </form>
+    }
+
+    @if (validationErrors().length > 0) {
+      <div class="register-errors" role="alert">
+        @for (error of validationErrors(); track $index) { <p>{{ error }}</p> }
+      </div>
+    }
+  </div>
+</section>

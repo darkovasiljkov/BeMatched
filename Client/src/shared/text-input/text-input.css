@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.floating-label > span {
+  color: rgb(255 255 255 / 62%);
+  background: #15161c;
+}
+
+.input {
+  min-height: 3rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 7%);
+  color: #fff;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.input::placeholder {
+  color: rgb(255 255 255 / 30%);
+}
+
+.input:hover {
+  border-color: rgb(255 255 255 / 20%);
+}
+
+.input:focus {
+  border-color: rgb(255 255 255 / 50%);
+  background: rgb(255 255 255 / 10%);
+  box-shadow: 0 0 0 4px rgb(255 255 255 / 5%);
+}
+
+.input.input-error {
+  border-color: #fb7185;
+}
+
+.input.input-success {
+  border-color: #34d399;
+}
