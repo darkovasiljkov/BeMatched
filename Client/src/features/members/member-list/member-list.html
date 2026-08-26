@@ -1,6 +1,27 @@
-<div class="grid grid-cols-5 gap-6">
-    @for(member of members$ | async; track member.id) {
-        <app-member-card [member]="member"></app-member-card>
+@if (paginatedMembers$ | async; as paginatedResult) {
+    @if (paginatedResult.items; as members) {
+        <div class="mb-6 flex items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-base-content">Matches</h1>
+                <p class="mt-1 text-sm text-base-content/60">{{ paginatedResult.metadata.totalCount }} results to discover</p>
+            </div>
+            <app-filter-modal
+                [filters]="memberParams"
+                [resultCount]="paginatedResult.metadata.totalCount"
+                (filtersApplied)="onFiltersApplied($event)"
+            />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-6">
+            @for(member of members; track member.id) {
+                <app-member-card [member]="member"></app-member-card>
+            }
+        </div>
+
+        <app-paginator
+            [pagination]="paginatedResult.metadata"
+            (pageChange)="onPageChange($event)"
+        />
     }
 
-</div>
+}

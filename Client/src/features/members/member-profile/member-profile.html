@@ -4,7 +4,7 @@
             <span class="font-semibold">Member since: <span class="font-light">{{member.createdOn | date: 'longDate'}}</span></span>
         </div>
         <div class="flex gap-3">
-             <span class="font-semibold">Last active: <span class="font-light">{{member.lastActive | date: 'dd MMM yyyy h:mm a'}}</span></span>
+             <span class="font-semibold">Last active: <span class="font-light">{{member.lastActive + 'Z' | timeago }}</span></span>
         </div>
         <h3 class="text-lg font-semibold text-primary">About {{member.displayName}}</h3>
         @if (memberService.editMode()) {

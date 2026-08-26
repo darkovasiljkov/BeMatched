@@ -1,0 +1,60 @@
+<button type="button" class="btn-glass gap-2" (click)="open()">
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-4">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.76 0 5 .895 5 2s-2.24 2-5 2-5-.895-5-2 2.24-2 5-2Zm-5 2v7c0 1.105 2.24 2 5 2s5-.895 5-2V5M7 12v7c0 1.105 2.24 2 5 2s5-.895 5-2v-7" />
+  </svg>
+  Filters <span class="text-white/55">({{ resultCount() }})</span>
+</button>
+
+<dialog #filterDialog class="modal bg-transparent p-4 backdrop:bg-black/70">
+  <div class="w-full max-w-md rounded-[28px] border border-white/10 bg-zinc-950 p-6 text-white shadow-2xl">
+    <div class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <p class="text-xl font-bold">Find your people</p>
+        <p class="mt-1 text-sm text-white/55">{{ resultCount() }} results match your current filters.</p>
+      </div>
+      <button type="button" class="inline-flex size-9 items-center justify-center rounded-full text-white/65 hover:bg-white/10 hover:text-white" (click)="close()" aria-label="Close filters">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18" /></svg>
+      </button>
+    </div>
+
+    <form [formGroup]="filterForm" (ngSubmit)="apply()" class="space-y-5">
+      <label class="block">
+        <span class="mb-2 block text-sm font-semibold">Gender</span>
+        <select formControlName="gender" class="filter-input">
+          <option value="">Everyone</option>
+          <option value="male">Men</option>
+          <option value="female">Women</option>
+        </select>
+      </label>
+
+      <div class="grid grid-cols-2 gap-4">
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold">Minimum age</span>
+          <input formControlName="minAge" type="number" min="18" max="100" class="filter-input" />
+        </label>
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold">Maximum age</span>
+          <input formControlName="maxAge" type="number" min="18" max="100" class="filter-input" />
+        </label>
+      </div>
+
+      @if (filterForm.controls.minAge.value > filterForm.controls.maxAge.value) {
+        <p class="text-sm text-red-300">Minimum age must be lower than maximum age.</p>
+      }
+
+      <label class="block">
+        <span class="mb-2 block text-sm font-semibold">Sort by</span>
+        <select formControlName="orderBy" class="filter-input">
+          <option value="lastActive">Recently active</option>
+          <option value="created">Newest members</option>
+        </select>
+      </label>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" class="btn-glass flex-1" (click)="reset()">Reset</button>
+        <button type="submit" class="btn-modern flex-1" [disabled]="filterForm.controls.minAge.value > filterForm.controls.maxAge.value">Show matches</button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button aria-label="Close filters">Close</button></form>
+</dialog>
