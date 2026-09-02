@@ -1,0 +1,47 @@
+###
+# LikesController requests
+#
+# Run the login request first. REST Client stores the response and uses the
+# token variable below for the authenticated requests.
+
+@baseUrl = https://localhost:5001/api
+@targetMemberId = todd-id
+@token = {{login.response.body.$.token}}
+
+### Login as a seeded user (Lisa)
+# Seeded users use the password: Pa$$w0rd
+# @name login
+POST {{baseUrl}}/accounts/login
+Content-Type: application/json
+
+{
+  "email": "lisa@test.com",
+  "password": "Pa$$w0rd"
+}
+
+### Get the IDs of members Lisa currently likes
+GET {{baseUrl}}/likes/list
+Authorization: Bearer {{token}}
+
+### Like Todd (running this request again toggles the like off)
+POST {{baseUrl}}/likes/{{targetMemberId}}
+Authorization: Bearer {{token}}
+
+### Get members Lisa likes
+GET {{baseUrl}}/likes?predicate=liked
+Authorization: Bearer {{token}}
+
+### Get members who like Lisa
+GET {{baseUrl}}/likes?predicate=likedBy
+Authorization: Bearer {{token}}
+
+### Get mutual likes (matches)
+GET {{baseUrl}}/likes
+Authorization: Bearer {{token}}
+
+### Toggle Todd's like off again (optional cleanup)
+# POST {{baseUrl}}/likes/{{targetMemberId}}
+# Authorization: Bearer {{token}}
+
+### This should return 401 because no token is supplied
+GET {{baseUrl}}/likes/list

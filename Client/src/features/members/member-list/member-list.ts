@@ -28,6 +28,7 @@ export class MemberList {
   };
 
   constructor () {
+    this.restoreFilters();
     this.paginatedMembers$ = this.memberService.getMembers(this.memberParams);
   }
 
@@ -39,10 +40,29 @@ export class MemberList {
   protected onFiltersApplied(filters: MemberFilters): void {
     // A new filter can change how many pages exist, so always return to page 1.
     this.memberParams = { ...this.memberParams, ...filters, pageNumber: 1 };
+    localStorage.setItem('filters', JSON.stringify(filters));
     this.loadMembers();
   }
 
   private loadMembers(): void {
     this.paginatedMembers$ = this.memberService.getMembers(this.memberParams);
+  }
+
+  private restoreFilters(): void {
+    const savedFilters = localStorage.getItem('filters');
+
+    if (!savedFilters) return;
+
+    try {
+      const filters = JSON.parse(savedFilters) as MemberFilters;
+      this.memberParams = {
+        ...this.memberParams,
+        ...filters,
+        pageNumber: 1,
+      };
+    } catch {
+      // Ignore invalid old storage and continue with the default filters.
+      localStorage.removeItem('filters');
+    }
   }
 }

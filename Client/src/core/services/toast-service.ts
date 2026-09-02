@@ -34,18 +34,18 @@ export class ToastService {
 
     const toast = document.createElement('div');
     toast.className = `
-  alert ${alertClass}
-  rounded-3xl
-  border border-white/10
-  bg-zinc-900/80
-  text-base-content
-  backdrop-blur-2xl
-  shadow-2xl
-  px-5 py-4
-  min-w-[320px]
-  transition-all duration-300
-  hover:-translate-y-1
-`;
+      alert ${alertClass}
+      rounded-3xl
+      border border-white/10
+      bg-zinc-900/80
+      text-base-content
+      backdrop-blur-2xl
+      shadow-2xl
+      px-5 py-4
+      min-w-[320px]
+      transition-all duration-300
+      hover:-translate-y-1
+    `;
     toast.innerHTML = `
       <span>${message}</span>
       <button class="btn btn-circle btn-ghost btn-sm text-white/50 hover:bg-white/10 hover:text-white">

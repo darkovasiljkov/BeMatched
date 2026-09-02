@@ -30,6 +30,11 @@ public class Member
     public List<Photo> Photos { get; set; } = [];
 
     [JsonIgnore]
+    public List<MemberLike> LikedByMember { get; set; } = [];
+
+    public List<MemberLike> LikedMembers { get; set; } = [];
+
+    [JsonIgnore]
     [ForeignKey(nameof(Id))]
     public AppUser User { get; set; } = null!;
 }  
