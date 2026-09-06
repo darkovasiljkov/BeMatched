@@ -8,7 +8,7 @@ import { Pagination } from '../../types/pagination';
     @if (pagination().totalPages > 1) {
       <nav class="mt-9 flex flex-col items-center gap-3 text-base-content" aria-label="Pagination">
         <p class="text-sm font-medium">
-          {{ itemRange() }} of {{ pagination().totalCount }} matches
+          {{ itemRange() }} of {{ pagination().totalCount }} {{ itemName() }}
         </p>
 
         <div class="flex items-center gap-3">
@@ -46,6 +46,7 @@ import { Pagination } from '../../types/pagination';
 })
 export class Paginator {
   pagination = input.required<Pagination>();
+  itemName = input('matches');
   pageChange = output<number>();
 
   protected isFirstPage = computed(() => this.pagination().currentPage <= 1);

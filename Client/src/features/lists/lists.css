@@ -1,0 +1,49 @@
+.lists-page {
+  min-height: calc(100vh - 9rem);
+}
+
+.empty-state {
+  display: flex;
+  min-height: 20rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 1.5rem;
+  background: rgb(255 255 255 / 4%);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  backdrop-filter: blur(14px);
+}
+
+.empty-icon {
+  display: inline-flex;
+  height: 3.75rem;
+  width: 3.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.25rem;
+}
+
+.list-skeleton {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 7%);
+}
+
+.skeleton {
+  animation: list-pulse 1.6s ease-in-out infinite;
+  background: rgb(255 255 255 / 10%);
+}
+
+@keyframes list-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}

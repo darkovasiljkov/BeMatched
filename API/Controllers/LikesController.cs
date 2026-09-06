@@ -29,7 +29,7 @@ namespace API.Controllers
                     TargetMemberId = targetMemberId
                 };
 
-                likesRepository.AddLike(like);
+                await likesRepository.AddLike(like);
             }
             else
             {
@@ -48,9 +48,12 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Member>>> GetMemberLikes(string predicate)
+        public async Task<ActionResult<PaginatedResult<Member>>> GetMemberLikes(
+            [FromQuery] LikesParams likesParams
+        )
         {
-            var members = await likesRepository.GetMemberLikes(predicate, User.GetMemberId());
+            likesParams.MemberId = User.GetMemberId();
+            var members = await likesRepository.GetMemberLikes(likesParams);
 
             return Ok(members);
         }
