@@ -1,26 +1,54 @@
-<div class="hero bg-base-200 min-h-screen">
-    @if (!registerMode())
-    {
-    <div class="hero-content text-center">
-        <div class="flex flex-col items-center">
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-60">
-  <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.984L7.28 21.53A.75.75 0 0 1 6 21v-4.03a48.527 48.527 0 0 1-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979Z" />
-  <path d="M15.75 7.5c-1.376 0-2.739.057-4.086.169C10.124 7.797 9 9.103 9 10.609v4.285c0 1.507 1.128 2.814 2.67 2.94 1.243.102 2.5.157 3.768.165l2.782 2.781a.75.75 0 0 0 1.28-.53v-2.39l.33-.026c1.542-.125 2.67-1.433 2.67-2.94v-4.286c0-1.505-1.125-2.811-2.664-2.94A49.392 49.392 0 0 0 15.75 7.5Z" />
-</svg>
-
-            <h1 class="text-5xl font-bold">Find your match</h1>
-            <p class="py-6">Come on in... all you need to do is sign up</p>
-            <div class="flex items-center gap-3">
-                <button (click)="showRegister(true)" class="btn btn-modern btn-lg">Register</button>
-                <button class="btn btn-glass btn-lg">Learn more</button>
-            </div>
+@if (!registerMode()) {
+  <main>
+    <section class="landing-hero" aria-labelledby="landing-title">
+      <div class="landing-content">
+        <p class="landing-kicker">BeMatched.</p>
+        <h1 id="landing-title">Meet someone<br>worth meeting.</h1>
+        <p class="landing-description">
+          Discover people who catch your eye. See when the feeling is mutual.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          @if (accountService.currentUser()) {
+            <a routerLink="/members" class="btn btn-lg rounded-full border-0 bg-white px-8 text-black hover:bg-white/90">
+              Explore matches
+            </a>
+          } @else {
+            <button type="button" (click)="showRegister(true)" class="btn btn-lg rounded-full border-0 bg-white px-8 text-black hover:bg-white/90">
+              Join BeMatched
+            </button>
+          }
+          <a href="#how-it-works" class="btn btn-lg rounded-full border border-white/30 bg-black/20 px-8 text-white backdrop-blur-sm hover:border-white/60 hover:bg-white/10">
+            How it works
+          </a>
         </div>
-    </div>
-    } @else {
-        <div class="w-full text-2xl text-center flex justify-center">
-            <app-register class="w-full"
-             (cancelRegister)="showRegister($event)"/>
-        </div>
-    }
+      </div>
+      <a href="#how-it-works" class="landing-scroll">Discover more <span aria-hidden="true">↓</span></a>
+    </section>
 
-</div>
+    <section id="how-it-works" class="bg-base-200 px-6 py-20 sm:py-24">
+      <div class="mx-auto max-w-5xl">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary">A better way to meet</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-base-content sm:text-4xl">It starts with a connection.</h2>
+        <div class="mt-10 grid gap-4 md:grid-cols-3">
+          <div class="rounded-2xl border border-base-content/10 bg-base-100 p-6">
+            <span class="text-sm font-semibold text-primary">01 / Discover</span>
+            <h3 class="mt-4 text-xl font-semibold">Find your people</h3>
+            <p class="mt-2 text-sm leading-6 text-base-content/60">Explore profiles and narrow your search with simple filters.</p>
+          </div>
+          <div class="rounded-2xl border border-base-content/10 bg-base-100 p-6">
+            <span class="text-sm font-semibold text-primary">02 / Like</span>
+            <h3 class="mt-4 text-xl font-semibold">Show your interest</h3>
+            <p class="mt-2 text-sm leading-6 text-base-content/60">Save the people you like and revisit them whenever you want.</p>
+          </div>
+          <div class="rounded-2xl border border-base-content/10 bg-base-100 p-6">
+            <span class="text-sm font-semibold text-primary">03 / Match</span>
+            <h3 class="mt-4 text-xl font-semibold">Make it mutual</h3>
+            <p class="mt-2 text-sm leading-6 text-base-content/60">When you both like each other, you will find them in your mutual list.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+} @else {
+  <app-register (cancelRegister)="showRegister($event)" />
+}

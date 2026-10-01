@@ -1,0 +1,75 @@
+:host {
+  display: block;
+}
+
+.landing-hero {
+  position: relative;
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  overflow: hidden;
+  padding: 9rem 1.5rem 6rem;
+  color: #fff;
+  text-align: center;
+  background:
+    linear-gradient(180deg, rgb(4 8 19 / 56%) 0%, rgb(4 8 19 / 42%) 45%, rgb(4 8 19 / 72%) 100%),
+    url('/landing-hero.png') center / cover no-repeat;
+}
+
+.landing-content {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 50rem);
+  text-shadow: 0 2px 22px rgb(0 0 0 / 35%);
+}
+
+.landing-kicker {
+  margin-bottom: 1.25rem;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.landing-content h1 {
+  font-size: clamp(3.2rem, 8vw, 6.5rem);
+  font-weight: 800;
+  letter-spacing: -0.065em;
+  line-height: 0.98;
+}
+
+.landing-description {
+  max-width: 31rem;
+  margin: 1.5rem auto 0;
+  color: rgb(255 255 255 / 86%);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.6;
+}
+
+.landing-scroll {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: rgb(255 255 255 / 78%);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transform: translateX(-50%);
+}
+
+.landing-scroll:hover {
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .landing-hero {
+    background-position: 48% center;
+  }
+
+  .landing-scroll {
+    bottom: 1.5rem;
+  }
+}
