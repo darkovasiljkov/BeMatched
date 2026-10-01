@@ -4,7 +4,7 @@
 
 BeMatched is a full-stack dating app built with Angular and ASP.NET Core. It brings member discovery, profile management, and mutual likes together in a clean, responsive interface.
 
-![BeMatched landing page artwork](Client/public/landing-hero.png)
+![BeMatched landing page artwork](Client/public/landing-page-hero.png)
 
 ## Highlights
 
