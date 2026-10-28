@@ -12,9 +12,11 @@ public class Message
 
     public DateTime? DateRead { get; set; }
 
+    public DateTime? DateDelivered { get; set; }
+
     public DateTime MessageSent { get; set; } = DateTime.UtcNow;
 
-    public int SenderDeleted { get; set; }
+    public bool SenderDeleted { get; set; }
 
     public bool RecipientDeleted { get; set; }
 

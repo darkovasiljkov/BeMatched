@@ -22,5 +22,7 @@ public class MessageDto
 
     public DateTime? DateRead { get; set; }
 
+    public DateTime? DateDelivered { get; set; }
+
     public DateTime MessageSent { get; set; }
 }

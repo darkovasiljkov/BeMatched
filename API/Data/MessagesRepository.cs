@@ -29,14 +29,23 @@ public class MessagesRepository(AppDbContext dbContext) : IMessageRepository
 
     public async Task<PaginatedResult<MessageDto>> GetMessagesForMember(MessageParams messageParams)
     {
+        if (messageParams.Container != "Outbox")
+        {
+            var deliveredAt = DateTime.UtcNow;
+            await dbContext.Messages
+                .Where(x => x.RecipientId == messageParams.MemberId && !x.RecipientDeleted && x.DateDelivered == null)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.DateDelivered, deliveredAt));
+        }
+
         var query = dbContext.Messages
             .OrderByDescending(x => x.MessageSent)
+            .ThenByDescending(x => x.Id)
             .AsQueryable();
         
         query = messageParams.Container switch
         {
-            "Outbox" => query.Where(x => x.SenderId == messageParams.MemberId),
-            _ => query.Where(x => x.RecipientId == messageParams.MemberId)
+            "Outbox" => query.Where(x => x.SenderId == messageParams.MemberId && !x.SenderDeleted),
+            _ => query.Where(x => x.RecipientId == messageParams.MemberId && !x.RecipientDeleted)
         };
 
         var messageQuery = query.Select(MessageExtensions.ToDtoProjection());
@@ -47,17 +56,26 @@ public class MessagesRepository(AppDbContext dbContext) : IMessageRepository
 
     public async Task<IReadOnlyList<MessageDto>> GetMessageThread(string currentMemberId, string recipientId)
     {
-      
+        var deliveredAt = DateTime.UtcNow;
         await dbContext.Messages
             .Where(x => x.RecipientId == currentMemberId
+                     && !x.RecipientDeleted
+                     && x.SenderId == recipientId
+                     && x.DateDelivered == null)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.DateDelivered, deliveredAt));
+
+        var readAt = DateTime.UtcNow;
+        await dbContext.Messages
+            .Where(x => x.RecipientId == currentMemberId
+                     && !x.RecipientDeleted
                      && x.SenderId == recipientId
                      && x.DateRead == null)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.DateRead, DateTime.UtcNow)); // will mark message as read before we return to user
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.DateRead, readAt));
 
         return await dbContext.Messages
             .Where(x => (x.RecipientId == currentMemberId
-                     && x.SenderId == recipientId)
-                     || (x.SenderId == currentMemberId && x.RecipientId == recipientId))
+                     && x.SenderId == recipientId && !x.RecipientDeleted)
+                     || (x.SenderId == currentMemberId && x.RecipientId == recipientId && !x.SenderDeleted))
                      .OrderBy(x => x.MessageSent)
                      .Select(MessageExtensions.ToDtoProjection())
                      .ToListAsync();

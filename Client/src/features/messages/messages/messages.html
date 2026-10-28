@@ -1,3 +1,115 @@
-@for (message of paginatedMessages()?.items; track message.id) {
-    <p>{{message.content}}</p>
-}
+<section class="pb-12">
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="text-3xl font-black tracking-tight text-base-content">Messages</h1>
+            <p class="mt-2 text-sm text-base-content/60">Your conversations and messages.</p>
+        </div>
+
+        <div class="tabs tabs-box tabs-sm w-fit" role="tablist" aria-label="Message folders">
+            @for (tab of tabs; track tab.value) {
+                <button
+                    type="button"
+                    role="tab"
+                    class="tab px-4"
+                    [class.tab-active]="container === tab.value"
+                    [attr.aria-selected]="container === tab.value"
+                    [disabled]="!!deletingMessageId()"
+                    (click)="setContainer(tab.value)">
+                    {{ tab.label }}
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (deleteError()) {
+        <div class="alert alert-error mb-4" role="alert">Could not delete this message. Please try again.</div>
+    }
+
+    @if (isLoading()) {
+        <p class="py-10 text-center text-base-content/60" role="status">Loading messages...</p>
+    } @else if (hasError()) {
+        <div class="py-10 text-center" role="alert">
+            <p>We could not load your messages.</p>
+            <button type="button" class="btn btn-ghost mt-3" (click)="loadMessages()">Try again</button>
+        </div>
+    } @else if (paginatedMessages(); as result) {
+        @if (result.items.length === 0) {
+            <p class="py-10 text-center text-base-content/60">
+                {{ isInbox ? 'Your inbox is empty.' : 'Your outbox is empty.' }}
+            </p>
+        } @else {
+            <div class="overflow-x-auto rounded-2xl border border-base-content/10">
+                <table class="table bg-base-100">
+                    <thead>
+                        <tr>
+                            <th scope="col">Sender / Recipient</th>
+                            <th scope="col">Message</th>
+                            <th scope="col">Sent</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (message of result.items; track message.id) {
+                            <tr class="cursor-pointer hover:bg-base-content/5" (click)="openMessage(message)">
+                                <td>
+                                    <a class="flex items-center gap-3 font-semibold hover:text-primary"
+                                        [routerLink]="['/members', isInbox ? message.senderId : message.recipientId, 'messages']"
+                                        (click)="$event.stopPropagation()">
+                                        <img class="size-10 rounded-full object-cover"
+                                            [src]="(isInbox ? message.senderImageUrl : message.recipientImageUrl) || '/user.png'"
+                                            alt="">
+                                        <span>{{ isInbox ? message.senderDisplayName : message.recipientDisplayName }}</span>
+                                    </a>
+                                </td>
+                                <td class="max-w-xs whitespace-normal break-words">{{ message.content }}</td>
+                                <td class="whitespace-nowrap">{{ message.messageSent | date:'medium' }}</td>
+                                <td>
+                                    @if (isInbox) {
+                                        <span class="badge" [class.badge-success]="!!message.dateRead"
+                                            [class.badge-primary]="!message.dateRead">
+                                            {{ message.dateRead ? 'Seen' : 'New' }}
+                                        </span>
+                                    } @else {
+                                        <span class="badge" [class.badge-success]="!!message.dateRead"
+                                            [class.badge-info]="!message.dateRead && !!message.dateDelivered"
+                                            [class.badge-ghost]="!message.dateRead && !message.dateDelivered">
+                                            {{ message.dateRead ? 'Seen' : message.dateDelivered ? 'Delivered' : 'Sent' }}
+                                        </span>
+                                    }
+                                </td>
+                                <td (click)="$event.stopPropagation()">
+                                    @if (pendingDeleteId() === message.id) {
+                                        <p class="mb-2 text-xs">Remove from your view only?</p>
+                                        <div class="flex gap-2">
+                                            <button type="button" class="btn btn-error btn-sm"
+                                                [disabled]="!!deletingMessageId()" (click)="deleteMessage(message.id)">
+                                                {{ deletingMessageId() === message.id ? 'Deleting...' : 'Delete' }}
+                                            </button>
+                                            <button type="button" class="btn btn-ghost btn-sm"
+                                                [disabled]="!!deletingMessageId()" (click)="pendingDeleteId.set(null)">Cancel</button>
+                                        </div>
+                                    } @else {
+                                        <button type="button" class="btn btn-ghost btn-square btn-sm text-error"
+                                            aria-label="Delete message" title="Delete message"
+                                            [disabled]="!!deletingMessageId()" (click)="pendingDeleteId.set(message.id)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="1.5" class="size-5" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <app-paginator
+                [pagination]="result.metadata"
+                itemName="messages"
+                (pageChange)="onPageChange($event)"
+            />
+        }
+    }
+</section>

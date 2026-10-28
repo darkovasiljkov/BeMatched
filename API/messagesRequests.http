@@ -1,0 +1,71 @@
+###
+# MessagesController requests for the VS Code REST Client extension.
+# Run both login requests first. Each POST creates a message in the database.
+# These accounts and IDs come from the seed data and assume it was loaded.
+
+@baseUrl = https://localhost:5001/api
+@lisaToken = {{loginLisa.response.body.$.token}}
+@toddToken = {{loginTodd.response.body.$.token}}
+@lisaId = lisa-id
+@toddId = todd-id
+
+### Login as Lisa
+# @name loginLisa
+POST {{baseUrl}}/accounts/login
+Content-Type: application/json
+
+{
+  "email": "lisa@test.com",
+  "password": "Pa$$w0rd"
+}
+
+### Login as Todd
+# @name loginTodd
+POST {{baseUrl}}/accounts/login
+Content-Type: application/json
+
+{
+  "email": "todd@test.com",
+  "password": "Pa$$w0rd"
+}
+
+### Lisa sends Todd a message (Lisa's outbox, Todd's inbox)
+# @name lisaMessage
+POST {{baseUrl}}/messages
+Authorization: Bearer {{lisaToken}}
+Content-Type: application/json
+
+{
+  "recipientId": "{{toddId}}",
+  "content": "Hi Todd! How are you?"
+}
+
+### Todd replies to Lisa (Todd's outbox, Lisa's inbox)
+POST {{baseUrl}}/messages
+Authorization: Bearer {{toddToken}}
+Content-Type: application/json
+
+{
+  "recipientId": "{{lisaId}}",
+  "content": "Hi Lisa! I'm doing well, thanks."
+}
+
+### Lisa's outbox before deleting
+GET {{baseUrl}}/messages?container=Outbox&pageNumber=1&pageSize=2
+Authorization: Bearer {{lisaToken}}
+
+### Delete Lisa's test message for Lisa only (run lisaMessage first)
+DELETE {{baseUrl}}/messages/{{lisaMessage.response.body.$.id}}
+Authorization: Bearer {{lisaToken}}
+
+### Lisa's thread no longer contains that message
+GET {{baseUrl}}/messages/thread/{{toddId}}
+Authorization: Bearer {{lisaToken}}
+
+### Todd still has the message in his inbox
+GET {{baseUrl}}/messages?container=Inbox&pageNumber=1&pageSize=2
+Authorization: Bearer {{toddToken}}
+
+### Todd deletes his copy too; the database row can now be removed
+DELETE {{baseUrl}}/messages/{{lisaMessage.response.body.$.id}}
+Authorization: Bearer {{toddToken}}

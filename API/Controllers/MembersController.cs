@@ -83,7 +83,7 @@ namespace API.Controllers
                 MemberId = User.GetMemberId()
             };
 
-            if (member.ImageUrl != null)
+            if (string.IsNullOrEmpty(member.ImageUrl))
             {
                 member.ImageUrl = photo.Url;
                 member.User.ImageUrl = photo.Url;

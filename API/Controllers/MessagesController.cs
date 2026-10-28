@@ -4,10 +4,12 @@ using API.Entities;
 using API.Extensions;
 using API.Helpers;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Authorize]
 public class MessagesController(IMessageRepository messageRepository, IMemberRepository memberRepository) : BaseApiController
 {
     [HttpPost]
@@ -25,7 +27,9 @@ public class MessagesController(IMessageRepository messageRepository, IMemberRep
         var message = new Message
         {
             SenderId = sender.Id,
+            Sender = sender,
             RecipientId = recipient.Id,
+            Recipient = recipient,
             Content = createMessageDto.Content
         };
 
@@ -52,5 +56,44 @@ public class MessagesController(IMessageRepository messageRepository, IMemberRep
     public async Task<ActionResult<IReadOnlyList<MessageDto>>> GetMessageThread(string recipientId)
     {
         return Ok(await messageRepository.GetMessageThread(User.GetMemberId(), recipientId));
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteMessage(string id)
+    {
+        var memberId = User.GetMemberId();
+
+        var message = await messageRepository.GetMessage(id);
+
+        if (message == null) return NotFound();
+
+        if (message.SenderId != memberId && message.RecipientId != memberId)
+        {
+            return Forbid();
+        }
+
+        // Repeating a deletion should still succeed.
+        if ((message.SenderId == memberId && message.SenderDeleted)
+            || (message.RecipientId == memberId && message.RecipientDeleted))
+        {
+            return NoContent();
+        }
+
+        if (message.SenderId == memberId)
+        {
+            message.SenderDeleted = true;
+        }
+        if (message.RecipientId == memberId)
+        {
+            message.RecipientDeleted = true;
+        }
+
+        if (message is { SenderDeleted: true, RecipientDeleted: true })
+        {
+            messageRepository.DeleteMessage(message);
+        }
+
+        if (await messageRepository.SaveAllAsync()) return NoContent();
+        return BadRequest("Problem deleting message!");
     }
 }

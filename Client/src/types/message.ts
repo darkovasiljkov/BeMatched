@@ -7,6 +7,7 @@ export interface Message {
     recipientDisplayName: string;
     recipientImageUrl: string;
     content: string;
-    dateRead?: string;
+    dateRead?: string | null;
+    dateDelivered?: string | null;
     messageSent: string;
 }

@@ -111,6 +111,9 @@ namespace API.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("DateDelivered")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("DateRead")
                         .HasColumnType("TEXT");
 
@@ -124,7 +127,7 @@ namespace API.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SenderDeleted")
+                    b.Property<bool>("SenderDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SenderId")

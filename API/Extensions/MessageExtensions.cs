@@ -21,6 +21,7 @@ public static class MessageExtensions
             RecipientImageUrl = message.Recipient.ImageUrl,
             Content = message.Content,
             DateRead = message.DateRead,
+            DateDelivered = message.DateDelivered,
             MessageSent = message.MessageSent,
         };
     }
@@ -37,6 +38,7 @@ public static class MessageExtensions
             RecipientImageUrl = message.Recipient.ImageUrl,
             Content = message.Content,
             DateRead = message.DateRead,
+            DateDelivered = message.DateDelivered,
             MessageSent = message.MessageSent,
         };
     } // First parametar what we take in: message, second what we return in this func: MessageDto
