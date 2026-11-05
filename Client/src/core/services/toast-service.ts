@@ -18,7 +18,7 @@ export class ToastService {
       container.id = 'toast-container';
       container.className = `
         toast toast-bottom toast-end
-        z-[9999]
+        z-50
         gap-3
         p-6
       `;

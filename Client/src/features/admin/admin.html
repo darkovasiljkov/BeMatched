@@ -1,0 +1,101 @@
+<section class="px-4 pb-12 sm:px-0" aria-labelledby="admin-title">
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary">Administration</p>
+    <h1 id="admin-title" class="text-3xl font-bold tracking-tight">Manage BeMatched</h1>
+    <p class="mt-2 text-sm text-base-content/60">{{ isAdmin() ? 'Manage account access and photo moderation.' : 'Your space for photo moderation.' }}</p>
+  </div>
+
+  <div class="tabs tabs-box tabs-sm mb-8 w-fit" role="tablist" aria-label="Administration">
+    <button type="button" role="tab" id="photos-tab" aria-controls="photos-panel" class="tab"
+      [class.tab-active]="activeTab() === 'photos'" [attr.aria-selected]="activeTab() === 'photos'" (click)="setTab('photos')">Photo moderation</button>
+    @if (isAdmin()) {
+      <button type="button" role="tab" id="roles-tab" aria-controls="roles-panel" class="tab"
+        [class.tab-active]="activeTab() === 'roles'" [attr.aria-selected]="activeTab() === 'roles'" (click)="setTab('roles')">User Management</button>
+    }
+  </div>
+
+  @if (activeTab() === 'photos') {
+    <div id="photos-panel" role="tabpanel" aria-labelledby="photos-tab" class="rounded-2xl border border-base-content/10 bg-base-100 px-6 py-14 text-center">
+      <svg class="mx-auto mb-4 size-9 text-base-content/40" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-6 5 7" />
+      </svg>
+      <h2 class="text-lg font-semibold">Photo moderation</h2>
+      <p class="mt-2 text-sm text-base-content/60">Photo review tools are coming here.</p>
+    </div>
+  } @else if (isAdmin()) {
+    <div id="roles-panel" role="tabpanel" aria-labelledby="roles-tab" class="overflow-hidden rounded-2xl border border-base-content/10 bg-base-100">
+      <div class="flex items-center justify-between gap-3 border-b border-base-content/10 p-5">
+        <div>
+          <h2 class="font-semibold">Users <span class="badge badge-sm badge-ghost ml-1">{{ users().length }}</span></h2>
+          <p class="mt-1 text-xs text-base-content/60">Choose who can access moderation and administration.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" [disabled]="loading()" (click)="loadUsers()">Refresh</button>
+      </div>
+      @if (loading()) {
+        <p class="flex items-center justify-center gap-3 py-12 text-sm text-base-content/60" role="status"><span class="loading loading-spinner loading-sm" aria-hidden="true"></span>Loading users...</p>
+      } @else if (loadError()) {
+        <div class="p-8 text-center" role="alert">
+          <p class="text-sm text-base-content/60">Could not load users.</p>
+          <button type="button" class="btn btn-sm mt-4" (click)="loadUsers()">Try again</button>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="table">
+            <caption class="sr-only">User email addresses and assigned roles</caption>
+            <thead><tr><th scope="col">Email</th><th scope="col">Roles</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr class="hover:bg-base-200/40">
+                  <td class="font-medium">{{ user.email }}</td>
+                  <td><div class="flex flex-wrap gap-1.5">@for (role of user.roles; track role) {<span class="badge badge-sm badge-soft" [class.badge-primary]="role === 'Admin'">{{ role }}</span>}</div></td>
+                  <td class="text-right"><button type="button" class="btn btn-sm btn-outline" [attr.aria-label]="'Edit roles for ' + user.email" (click)="openRolesModal(user)">Edit roles</button></td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3" class="py-10 text-center text-base-content/60">No users found.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+<dialog #rolesDialog class="modal" aria-labelledby="roles-title" (cancel)="$event.preventDefault(); closeRolesModal()">
+  <div class="modal-box max-w-md rounded-2xl border border-base-content/10">
+    @if (selectedUser(); as user) {
+      <h2 id="roles-title" class="break-words text-xl font-bold">Edit roles for {{ user.email }}</h2>
+      <p class="mt-2 text-sm text-base-content/60">Select the access this user should have.</p>
+      <form (submit)="$event.preventDefault(); saveRoles()">
+        <fieldset class="mt-5 space-y-2" [disabled]="saving()">
+          <legend class="sr-only">Available roles</legend>
+          @for (role of availableRoles; track role) {
+            <label class="flex cursor-pointer items-center justify-between rounded-xl border border-base-content/10 p-4">
+              <span class="text-sm font-medium">{{ role }}</span>
+              <input type="checkbox" class="checkbox checkbox-sm" [checked]="selectedRoles().includes(role)"
+                [disabled]="role === 'Admin' && adminLocked()" (change)="toggleRole(role, $any($event.target).checked)" />
+            </label>
+          }
+        </fieldset>
+        @if (adminLocked()) {
+          <p class="mt-3 text-xs leading-5 text-base-content/60">Admin access is protected and cannot be removed from an existing administrator.</p>
+        }
+        @if (selectedRoles().length === 0) {
+          <p class="mt-3 text-sm text-warning" role="alert">Select at least one role.</p>
+        }
+        @if (saveError()) {
+          <p class="mt-3 text-sm text-error" role="alert">{{ saveError() }}</p>
+        }
+        <p class="mt-4 text-xs leading-5 text-base-content/60">Role changes take effect the next time this user signs in.</p>
+        <div class="modal-action">
+          <button type="button" class="btn btn-ghost" [disabled]="saving()" (click)="closeRolesModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving() || !rolesChanged() || selectedRoles().length === 0">
+            @if (saving()) {<span class="loading loading-spinner loading-xs" aria-hidden="true"></span>}
+            {{ saving() ? 'Saving...' : 'Save roles' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+  <div class="modal-backdrop"><button type="button" [disabled]="saving()" aria-label="Close edit roles" (click)="closeRolesModal()">Close</button></div>
+</dialog>

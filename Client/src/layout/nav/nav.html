@@ -54,6 +54,13 @@
         Messages
       </a>
 
+       <a *appHasRole="['Admin', 'Moderator']"
+        routerLink="/admin"
+        routerLinkActive="nav-active"
+        class="nav-link">
+        Admin
+      </a>
+
         <a
         routerLink="/errors"
         routerLinkActive="nav-active"
