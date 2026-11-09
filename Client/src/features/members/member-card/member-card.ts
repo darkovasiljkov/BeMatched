@@ -3,10 +3,11 @@ import { Member } from '../../../types/member';
 import { RouterLink } from '@angular/router';
 import { AgePipe } from '../../../core/pipes/age-pipe';
 import { LikesService } from '../../../core/services/likes-service';
+import { OnlineStatus } from '../../../shared/online-status/online-status';
 
 @Component({
   selector: 'app-member-card',
-  imports: [RouterLink, AgePipe],
+  imports: [RouterLink, AgePipe, OnlineStatus],
   templateUrl: './member-card.html',
   styleUrl: './member-card.css',
 })

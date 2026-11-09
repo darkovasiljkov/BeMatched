@@ -7,6 +7,7 @@ import { distinctUntilChanged, map, Subscription } from 'rxjs';
 import { AccountService } from '../../../core/services/account-service';
 import { MessageService } from '../../../core/services/message-service';
 import { Message } from '../../../types/message';
+import { PresenceService } from '../../../core/services/presence-service';
 
 @Component({
   selector: 'app-member-messages',
@@ -20,6 +21,7 @@ export class MemberMessages {
   private accountService = inject(AccountService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  protected presenceService = inject(PresenceService);
   private threadRequest?: Subscription;
 
   protected messages = signal<Message[]>([]);
@@ -73,19 +75,34 @@ export class MemberMessages {
       this.deleteError.set(false);
       this.loadMessages();
     });
+
+    this.presenceService.newMessages$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(message => {
+      const userId = this.currentUserId();
+      const recipientId = this.recipientId();
+      if (!((message.senderId === userId && message.recipientId === recipientId)
+          || (message.recipientId === userId && message.senderId === recipientId))) return;
+      this.addMessage(message);
+      // Preserve the existing HTTP thread endpoint's read-status behavior.
+      if (message.recipientId === userId) this.loadMessages(false);
+    });
+    this.presenceService.reconnected$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadMessages(false));
   }
 
-  loadMessages(): void {
+  loadMessages(showLoading = true): void {
     const memberId = this.recipientId();
     this.threadRequest?.unsubscribe();
 
     if (memberId) {
-      this.isLoading.set(true);
+      if (showLoading) this.isLoading.set(true);
       this.hasError.set(false);
+      const existingIds = new Set(this.messages().map(message => message.id));
       this.threadRequest = this.messageService.getMessageThread(memberId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: messages => {
-            this.messages.set(messages);
+            // Keep hub messages that arrived while the history request was running.
+            this.messages.update(current => [...messages, ...current.filter(item => !existingIds.has(item.id) && !messages.some(value => value.id === item.id))]
+              .sort((a, b) => Date.parse(a.messageSent) - Date.parse(b.messageSent)));
             this.isLoading.set(false);
           },
           error: () => {
@@ -103,7 +120,7 @@ export class MemberMessages {
     const recipientId = this.recipientId();
     const content = this.messageContent.trim();
 
-    if (!recipientId || !this.canSend() || !content || this.isSending() || this.isLoading() || this.hasError() || this.deletingMessageId()) return;
+    if (!recipientId || !this.canSend() || !this.presenceService.isConnected() || !content || this.isSending() || this.isLoading() || this.hasError() || this.deletingMessageId()) return;
 
     this.isSending.set(true);
     this.sendError.set(false);
@@ -111,7 +128,7 @@ export class MemberMessages {
     this.messageService.sendMessage(recipientId, content).subscribe({
         next: message => {
           if (this.recipientId() === recipientId) {
-            this.messages.update(messages => [...messages, message]);
+            this.addMessage(message);
             this.messageContent = '';
           }
           this.isSending.set(false);
@@ -122,6 +139,11 @@ export class MemberMessages {
         },
       });
   }
+  private addMessage(message: Message): void {
+    // The hub event can arrive before the SendMessage invocation response.
+    this.messages.update(messages => messages.some(value => value.id === message.id) ? messages : [...messages, message]);
+  }
+
   protected deleteMessage(messageId: string): void {
     if (this.deletingMessageId() || this.isLoading() || this.isSending()) return;
 

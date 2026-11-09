@@ -7,7 +7,7 @@
              <span class="font-semibold">Last active: <span class="font-light">{{member.lastActive + 'Z' | timeago }}</span></span>
         </div>
         <h3 class="text-lg font-semibold text-primary">About {{member.displayName}}</h3>
-        @if (memberService.editMode()) {
+        @if (accountService.currentUser()?.id === member.id && memberService.editMode()) {
             <form #editForm="ngForm" (ngSubmit)="updateProfile()" class="flex flex-col w-full gap-5">
               <label class="floating-label">
                  <span>Display Name</span> 

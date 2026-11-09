@@ -5,6 +5,7 @@ import { finalize, tap } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LikesService } from './likes-service';
+import { PresenceService } from './presence-service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ import { LikesService } from './likes-service';
 export class AccountService {
   private http = inject(HttpClient);
   private likesService = inject(LikesService);
+  private presenceService = inject(PresenceService);
   private refreshInterval?: ReturnType<typeof setInterval>;
   private refreshSubscription?: Subscription;
 
@@ -64,6 +66,7 @@ export class AccountService {
     user.roles = this.getRolesFromToken(user);
     this.currentUser.set(user);
     this.likesService.getLikeIds();
+    void this.presenceService.createHubConnection(user);
   }
 
   logout(){
@@ -75,6 +78,7 @@ export class AccountService {
         localStorage.removeItem('filters');
         this.likesService.clearLikeIds();
         this.currentUser.set(null);
+        void this.presenceService.stopHubConnection();
       }),
       finalize(() => {
         this.loggingOut.set(false);

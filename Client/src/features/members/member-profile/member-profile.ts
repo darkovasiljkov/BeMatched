@@ -1,4 +1,5 @@
-import { Component, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { EditableMember, Member } from '../../../types/member';
 import { DatePipe } from '@angular/common';
@@ -17,7 +18,9 @@ import { TimeagoPipe } from 'ngx-timeago';
 export class MemberProfile implements OnInit, OnDestroy {
   @ViewChild('editForm') editForm? : NgForm;
 
-  private accountService = inject(AccountService);
+  protected accountService = inject(AccountService);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   protected memberService = inject(MemberService);
   private toast = inject(ToastService);
   protected editableMember: EditableMember = {
@@ -29,20 +32,28 @@ export class MemberProfile implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    this.route.parent?.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
+      const member = data['member'] as Member | undefined;
+      if (!member) return;
+
+      this.memberService.editMode.set(false);
       this.editableMember = {
-        displayName: this.memberService.member()?.displayName || '',
-        description: this.memberService.member()?.description || '',
-        city: this.memberService.member()?.city || '',
-        country: this.memberService.member()?.country || ''
-    }
+        displayName: member.displayName,
+        description: member.description || '',
+        city: member.city,
+        country: member.country
+      };
+      this.editForm?.reset(this.editableMember);
+    });
   }
 
   updateProfile() {
-    if (!this.memberService.member()) {
+    const member = this.memberService.member();
+    if (!member || this.accountService.currentUser()?.id !== member.id) {
       return;
     }
 
-    const updatedMember = {...this.memberService.member(), ...this.editableMember}
+    const updatedMember = {...member, ...this.editableMember}
     this.memberService.updateMember(this.editableMember).subscribe({
       next: () => {
             const currentUser = this.accountService.currentUser();

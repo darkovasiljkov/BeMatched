@@ -81,6 +81,9 @@
 }
 
 @if (canSend() && !hasError()) {
+    @if (!presenceService.isConnected()) {
+        <p class="mt-4 text-sm text-base-content/60" role="status">Connecting to live messaging...</p>
+    }
     <form class="mt-4 flex flex-col gap-3" (ngSubmit)="sendMessage()">
         <label for="message-content" class="font-semibold">Write a message</label>
         <textarea
@@ -99,7 +102,7 @@
 
         <div class="flex justify-end">
             <button type="submit" class="btn btn-primary"
-                [disabled]="!messageContent.trim() || isSending() || isLoading() || !!deletingMessageId()">
+                [disabled]="!presenceService.isConnected() || !messageContent.trim() || isSending() || isLoading() || !!deletingMessageId()">
                 @if (isSending()) {
                     <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
                     Sending...

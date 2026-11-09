@@ -2,11 +2,13 @@ import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { filter, merge, Subscription } from 'rxjs';
 import { MessageService } from '../../../core/services/message-service';
 import { PaginatedResult } from '../../../types/pagination';
 import { Message } from '../../../types/message';
 import { Paginator } from '../../../shared/paginator/paginator';
+import { PresenceService } from '../../../core/services/presence-service';
+import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-messages',
@@ -18,6 +20,8 @@ export class Messages implements OnInit {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private presenceService = inject(PresenceService);
+  private accountService = inject(AccountService);
   private messagesRequest?: Subscription;
   protected container = 'Inbox';
   protected fetchedContainer = 'Inbox';
@@ -36,11 +40,26 @@ export class Messages implements OnInit {
   ]
   ngOnInit(): void {
     this.loadMessages();
+    const messagesForCurrentFolder = this.presenceService.newMessages$.pipe(
+      filter(message => {
+        const userId = this.accountService.currentUser()?.id;
+        if (!userId) return false;
+        return this.container === 'Inbox'
+          ? message.recipientId === userId
+          : message.senderId === userId;
+      })
+    );
+
+    merge(messagesForCurrentFolder, this.presenceService.reconnected$)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (!this.deletingMessageId()) this.loadMessages(false);
+      });
   }
 
-  loadMessages() {
+  loadMessages(showLoading = true) {
     this.messagesRequest?.unsubscribe();
-    this.isLoading.set(true);
+    if (showLoading) this.isLoading.set(true);
     this.hasError.set(false);
     const requestedContainer = this.container;
 

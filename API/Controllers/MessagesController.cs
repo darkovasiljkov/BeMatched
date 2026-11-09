@@ -6,41 +6,19 @@ using API.Helpers;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using API.Services;
 
 namespace API.Controllers;
 
 [Authorize]
-public class MessagesController(IMessageRepository messageRepository, IMemberRepository memberRepository) : BaseApiController
+public class MessagesController(IMessageRepository messageRepository, MessageSender messageSender) : BaseApiController
 {
     [HttpPost]
     public async Task<ActionResult<MessageDto>> CreateMessage (CreateMessageDto createMessageDto)
     {
-        var sender = await memberRepository.GetMemberByIdAsync(User.GetMemberId());
-
-        var recipient = await memberRepository.GetMemberByIdAsync(createMessageDto.RecipientId);
-
-        if (recipient == null || sender == null || sender.Id == createMessageDto.RecipientId)
-        {
-                        return BadRequest("cannot send this message");
-        }
-
-        var message = new Message
-        {
-            SenderId = sender.Id,
-            Sender = sender,
-            RecipientId = recipient.Id,
-            Recipient = recipient,
-            Content = createMessageDto.Content
-        };
-
-        messageRepository.AddMessage(message);
-
-        if (await messageRepository.SaveAllAsync())
-        {
-            return message.ToDto();
-        }
-
-        return BadRequest("Failed to send message!");
+        var message = await messageSender.SendMessage(User.GetMemberId(), createMessageDto);
+        if (message == null) return BadRequest("Unable to send this message.");
+        return message;
         
     }
 

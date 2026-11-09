@@ -44,6 +44,8 @@ builder.Services.AddScoped<IMessageRepository, MessagesRepository>();
 builder.Services.AddScoped<LogUserActivity>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<PresenceTracker>();
+builder.Services.AddScoped<MessageSender>();
 builder.Services.AddIdentityCore<AppUser>(option =>
 {
     option.Password.RequireNonAlphanumeric = false;
@@ -72,14 +74,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var accessToken = context.Request.Query["access_token"];
 
                 var path = context.HttpContext.Request.Path;
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/presence"))
                 {
                     context.Token = accessToken;
                 }
 
                 return Task.CompletedTask;
             }
-        }
+        };
     });
 
 builder.Services.AddAuthorizationBuilder()
@@ -102,7 +104,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<PresenceHub>("/hubs/presence");
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

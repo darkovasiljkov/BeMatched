@@ -12,7 +12,7 @@ import { MemberParams } from '../../types/member-params';
 export class MemberService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
-  editMode = signal(true);
+  editMode = signal(false);
   member = signal<Member | null>(null);
   
   getMembers(memberParams: MemberParams) {
@@ -35,6 +35,8 @@ export class MemberService {
   }
 
   getMember(id: string) {
+    // Clear the previous profile while the next route parameter is loading.
+    this.member.set(null);
     return this.http.get<Member>(this.baseUrl + 'members/' + id).pipe(
       tap(member => {
         this.member.set(member);

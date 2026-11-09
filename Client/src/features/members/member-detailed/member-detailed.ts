@@ -1,5 +1,6 @@
 import { Location } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AgePipe } from '../../../core/pipes/age-pipe';
@@ -7,15 +8,17 @@ import { AccountService } from '../../../core/services/account-service';
 import { LikesService } from '../../../core/services/likes-service';
 import { MemberService } from '../../../core/services/member-service';
 import { ToastService } from '../../../core/services/toast-service';
+import { OnlineStatus } from '../../../shared/online-status/online-status';
 
 @Component({
   selector: 'app-member-detailed',
-  imports: [RouterLink, AgePipe, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, AgePipe, RouterLinkActive, RouterOutlet, OnlineStatus],
   templateUrl: './member-detailed.html',
   styleUrl: './member-detailed.css',
 })
 export class MemberDetailed implements OnInit {
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   protected memberService = inject(MemberService);
   private accountService = inject(AccountService);
   private likesService = inject(LikesService);
@@ -32,8 +35,14 @@ export class MemberDetailed implements OnInit {
   ngOnInit(): void {
     this.title.set(this.route.firstChild?.snapshot?.title);
 
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      // A route can reuse this component for a different member ID.
+      this.memberService.editMode.set(false);
+    });
+
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
         this.title.set(this.route.firstChild?.snapshot?.title);

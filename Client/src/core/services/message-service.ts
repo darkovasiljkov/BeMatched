@@ -3,6 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { PaginatedResult } from '../../types/pagination';
 import { Message } from '../../types/message';
+import { PresenceService } from './presence-service';
+import { defer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +12,7 @@ import { Message } from '../../types/message';
 export class MessageService {
   private baseUrl = environment.apiUrl;
   private http = inject(HttpClient)
+  private presenceService = inject(PresenceService);
 
   getMessages(container: string, pageNumber: number, pageSize: number){
     let params = new HttpParams();
@@ -27,7 +30,7 @@ export class MessageService {
   }
 
   sendMessage(recipientId: string, content: string) {
-    return this.http.post<Message>(this.baseUrl + 'messages', {recipientId, content})
+    return defer(() => this.presenceService.sendMessage(recipientId, content));
 
   }
 
