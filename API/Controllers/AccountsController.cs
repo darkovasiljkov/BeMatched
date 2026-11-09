@@ -7,10 +7,12 @@ using API.Extensions;
 using API.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
+[EnableRateLimiting("accounts")]
 public class AccountsController(UserManager<AppUser> userManager, ITokenService tokenService): BaseApiController
 {
     [HttpPost("register")] // api/accounts/register
@@ -43,6 +45,8 @@ public class AccountsController(UserManager<AppUser> userManager, ITokenService 
         }
 
         await userManager.AddToRoleAsync(user, "Member");
+
+        await SetRefreshTokenCookie(user);
         
         return await user.ToDto(tokenService);
     }
@@ -61,6 +65,70 @@ public class AccountsController(UserManager<AppUser> userManager, ITokenService 
 
         if (!result) return Unauthorized("Invalid password!");
 
+        await SetRefreshTokenCookie(user);
+
         return await user.ToDto(tokenService);
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<ActionResult<UserDto>> RefreshToken()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (refreshToken == null) return NoContent();
+
+        var user = await userManager.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken && x.RefreshTokenExpiry > DateTime.UtcNow);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        await SetRefreshTokenCookie(user);
+
+        return await user.ToDto(tokenService);
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+            if (user != null)
+            {
+                user.RefreshToken = null;
+                user.RefreshTokenExpiry = null;
+                var result = await userManager.UpdateAsync(user);
+                if (!result.Succeeded) return BadRequest("Could not log out. Please try again.");
+            }
+        }
+
+        Response.Cookies.Delete("refreshToken", new CookieOptions
+        {
+            Path = "/",
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+        return NoContent();
+    }
+
+    private async Task SetRefreshTokenCookie(AppUser user)
+    {
+        var refreshToken = tokenService.GenerateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+        await userManager.UpdateAsync(user);
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        };
+
+        Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
     }
 }

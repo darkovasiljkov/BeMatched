@@ -107,11 +107,10 @@
           </li>
 
           <li>
-            <a
-              (click)="logout()"
+            <button type="button" (click)="logout()" [disabled]="accountService.loggingOut()"
               class="rounded-xl hover:bg-red-500/20">
-              Logout
-            </a>
+              {{ accountService.loggingOut() ? 'Signing out...' : 'Logout' }}
+            </button>
           </li>
         </ul>
 

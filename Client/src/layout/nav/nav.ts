@@ -59,7 +59,9 @@ export class Nav implements OnInit {
 
   logout()
   {
-    this.accountService.logout();
-    this.router.navigateByUrl('/');
+    this.accountService.logout().subscribe({
+      next: () => this.router.navigateByUrl('/'),
+      error: () => this.toast.error('Could not sign out on the server. Please try again.')
+    });
   }
 }

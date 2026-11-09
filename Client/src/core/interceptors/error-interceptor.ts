@@ -29,6 +29,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           case 401:
             toast.error('Unauthorized');
             break;
+          case 429:
+            toast.error('Too many attempts. Please wait a moment and try again.');
+            break;
           case 404:
             router.navigateByUrl('/not-found')
             break;
